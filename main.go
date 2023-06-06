@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"os"
 
@@ -29,7 +29,7 @@ func main() {
 		fmt.Printf("File Size: %+v\n", handler.Size)
 		fmt.Printf("MIME Header: %+v\n", handler.Header)
 
-		fileBytes, err := ioutil.ReadAll(file)
+		fileBytes, err := io.ReadAll(file)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -54,12 +54,19 @@ func main() {
 
 	r.Get("/csv", func(w http.ResponseWriter, r *http.Request) {
 		filename := r.URL.Query().Get("fileName")
-		tempFile, err := ioutil.ReadFile("csv/" + filename + ".csv")
+
+		file, err := os.Open("csv/" + filename + ".csv")
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer file.Close()
+
+		data, err := io.ReadAll(file)
 		if err != nil {
 			fmt.Println(err)
 		}
 
-		fmt.Fprint(w, string(tempFile))
+		fmt.Fprint(w, string(data))
 	})
 
 	http.ListenAndServe(":3000", r)
