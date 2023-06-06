@@ -28,7 +28,7 @@ func main() {
 		fmt.Printf("File Size: %+v\n", handler.Size)
 		fmt.Printf("MIME Header: %+v\n", handler.Header)
 
-		tempFile, err := ioutil.TempFile("temp-images", "upload-*.csv")
+		tempFile, err := ioutil.TempFile("temp-images", handler.Filename)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -45,7 +45,8 @@ func main() {
 	})
 
 	r.Get("/csv", func(w http.ResponseWriter, r *http.Request) {
-		tempFile, err := ioutil.ReadFile("temp-images/upload-*.csv")
+		filename := r.URL.Query().Get("fileName")
+		tempFile, err := ioutil.ReadFile("temp-images/" + filename + ".csv")
 		if err != nil {
 			fmt.Println(err)
 		}
